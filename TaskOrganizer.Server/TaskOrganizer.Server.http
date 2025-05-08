@@ -1,0 +1,6 @@
+@TaskOrganizer.Server_HostAddress = http://localhost:5242
+
+GET {{TaskOrganizer.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
