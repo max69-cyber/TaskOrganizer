@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using TaskOrganizer.Server.Data;
+using TaskOrganizer.Server.Models;
+using TaskOrganizer.Server.Services.Interfaces;
 
 namespace TaskOrganizer.Server.Controllers;
 
@@ -7,29 +9,61 @@ namespace TaskOrganizer.Server.Controllers;
 [ApiController]
 public class TaskController : ControllerBase
 {
-    private readonly AppDataContext _context;
+    private readonly ITaskService _taskService;
 
-    public TaskController(AppDataContext context)
+    public TaskController(ITaskService taskService)
     {
-        _context = context;
+        _taskService = taskService;
     }
+    
+    int userId = 1; // ADD JWT HAYAKU !!!!
 
-    [HttpGet("db-connection")]
-    public async Task<IActionResult> CheckDatabase()
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<TasksListDTO>>> GetTasks()
+    {
+        var tasks = await _taskService.GetAllTasks(userId);
+        return Ok(tasks);
+    }
+    
+    [HttpPost]
+    public async Task<ActionResult> CreateTask([FromBody] TasksListDTO dto)
     {
         try
         {
-            var canConnect = await _context.Database.CanConnectAsync();
-            if (canConnect)
-            {
-                string name = _context.Users.First().Login;
-                return Ok("Успешное подключение к базе данных!" + name);
-            }
-            return StatusCode(500, "Не удалось подключиться к базе данных.");
+            await _taskService.AddTask(userId, dto);
+            return Ok();
         }
         catch (Exception ex)
         {
-            return StatusCode(500, $"Ошибка подключения: {ex.Message}");
+            return BadRequest(ex.Message);
         }
-    } 
+    }
+
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateTask(int id, [FromBody] TasksListDTO dto)
+    {
+        try
+        {
+            await _taskService.UpdateTask(userId, id, dto);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteTask(int id)
+    {
+        try
+        {
+            await _taskService.DeleteTask(userId, id);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }

@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TaskOrganizer.Server.Data;
+using TaskOrganizer.Server.Services;
+using TaskOrganizer.Server.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +12,8 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<AppDataContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSqlConnection"))
 );
+
+builder.Services.AddScoped<ITaskService, TaskService>();
 
 builder.Services.AddCors(options =>
 {
