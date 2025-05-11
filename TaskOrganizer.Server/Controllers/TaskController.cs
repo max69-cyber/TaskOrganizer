@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskOrganizer.Server.Data;
 using TaskOrganizer.Server.Models;
@@ -7,6 +8,7 @@ namespace TaskOrganizer.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TaskController : ControllerBase
 {
     private readonly ITaskService _taskService;
