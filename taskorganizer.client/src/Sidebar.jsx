@@ -1,8 +1,11 @@
 import React from 'react';
 import { Box, Button, IconButton, useColorMode, useColorModeValue, HStack, VStack, Flex, Avatar, Text } from '@chakra-ui/react';
-import { SunIcon, MoonIcon, HamburgerIcon, CloseIcon, SearchIcon, ArrowForwardIcon } from '@chakra-ui/icons';
+import { SunIcon, MoonIcon, SearchIcon, AddIcon, EditIcon, DeleteIcon, BellIcon } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import LogoutIcon from "./assets/LogoutIcon.jsx";
+import ChevroneLeft from "./assets/ChevroneLeft.jsx";
+import ChevroneRight from "./assets/ChevroneRight.jsx";
+
 
 
 // ЧТО ДОДЕЛАТЬ
@@ -21,7 +24,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
         <Box
             bg={bg}
             color={color}
-            w={isOpen ? '250px' : '60px'}
+            w={isOpen ? '250px' : '40px'}
             className="h-full p-2 shadow-lg"
             display="flex"
             flexDirection="column"
@@ -39,7 +42,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
 
                 <IconButton
                     aria-label="Toggle Sidebar"
-                    icon={isOpen ? <CloseIcon /> : <HamburgerIcon />}
+                    icon={isOpen ? <ChevroneLeft  /> : <ChevroneRight/>}
                     bg={bg}
                     onClick={onToggle}
                     size="xs"
@@ -47,7 +50,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
             </Flex>
 
             {isOpen && (
-                <Flex direction="column" flex="1">
+                <Flex direction="column" p={2} flex="1" 
+                      borderTopWidth="1px" 
+                      borderTopColor={useColorModeValue('gray.200', 'gray.700')}
+                >
                     <VStack align="start" spacing={1} w="full">
                         <Link to="/doctors" style={{ width: '100%' }}>
                             <Button
@@ -61,7 +67,23 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 justifyContent="flex-start"
                                 leftIcon={<SearchIcon/>}
                             >
-                                Поиск задач
+                                Поиск
+                            </Button>
+                        </Link>
+                        
+                        <Link to="/doctors" style={{ width: '100%' }}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                color={useColorModeValue('gray.800', 'white')}
+                                _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
+                                fontSize="s"
+                                w="full"
+                                rounded="lg"
+                                justifyContent="flex-start"
+                                leftIcon={<AddIcon/>}
+                            >
+                                Добавить
                             </Button>
                         </Link>
 
@@ -75,9 +97,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 w="full"
                                 rounded="lg"
                                 justifyContent="flex-start"
-                                leftIcon={<SearchIcon/>}
+                                leftIcon={<EditIcon/>}
                             >
-                                Поиск задач
+                                Редактировать
                             </Button>
                         </Link>
 
@@ -91,9 +113,25 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 w="full"
                                 rounded="lg"
                                 justifyContent="flex-start"
-                                leftIcon={<SearchIcon/>}
+                                leftIcon={<DeleteIcon/>}
                             >
-                                Поиск задач
+                                Удалить
+                            </Button>
+                        </Link>
+
+                        <Link to="/doctors" style={{ width: '100%' }}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                color={useColorModeValue('gray.800', 'white')}
+                                _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
+                                fontSize="s"
+                                w="full"
+                                rounded="lg"
+                                justifyContent="flex-start"
+                                leftIcon={<BellIcon/>}
+                            >
+                                Напоминание
                             </Button>
                         </Link>
                     </VStack>
