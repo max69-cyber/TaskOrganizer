@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskOrganizer.Server.Data;
@@ -18,13 +19,32 @@ public class TaskController : ControllerBase
         _taskService = taskService;
     }
     
-    int userId = 1; // ADD JWT HAYAKU !!!!
+    private int GetUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    
+        if (userIdClaim != null && int.TryParse(userIdClaim, out int userId))
+        {
+            return userId;
+        }
+
+        throw new UnauthorizedAccessException("Пользователь не авторизован");
+    }
+
 
     [HttpGet]
     public async Task<ActionResult<IEnumerable<TasksListDTO>>> GetTasks()
     {
-        var tasks = await _taskService.GetAllTasks(userId);
-        return Ok(tasks);
+        try
+        {
+            var userId = GetUserId();
+            var tasks = await _taskService.GetAllTasks(userId);
+            return Ok(tasks);
+        }
+        catch (Exception ex)
+        {
+            return Unauthorized(ex.Message);
+        }
     }
     
     [HttpPost]
@@ -32,6 +52,7 @@ public class TaskController : ControllerBase
     {
         try
         {
+            var userId = GetUserId();
             await _taskService.AddTask(userId, dto);
             return Ok();
         }
@@ -41,12 +62,13 @@ public class TaskController : ControllerBase
         }
     }
 
-    [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateTask(int id, [FromBody] TasksListDTO dto)
+    [HttpPut]
+    public async Task<ActionResult> UpdateTask([FromBody] TasksListDTO dto)
     {
         try
         {
-            await _taskService.UpdateTask(userId, id, dto);
+            var userId = GetUserId();
+            await _taskService.UpdateTask(userId, dto);
             return Ok();
         }
         catch (Exception ex)
@@ -60,6 +82,7 @@ public class TaskController : ControllerBase
     {
         try
         {
+            var userId = GetUserId();
             await _taskService.DeleteTask(userId, id);
             return Ok();
         }

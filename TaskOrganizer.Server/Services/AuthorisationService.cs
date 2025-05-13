@@ -30,7 +30,10 @@ public class AuthorisationService : IAuthorisationService
 
         var claims = new[]
         {
-            new Claim(ClaimTypes.Name, user.Login)
+            new Claim(ClaimTypes.NameIdentifier, user.ID.ToString()),
+            new Claim(ClaimTypes.Name, user.Login),
+            new Claim("FullName", user.FullName),
+            new Claim("Email", user.Email)
         };
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:SecretKey"]));

@@ -2,16 +2,67 @@ import axios from "axios";
 
 export const getTasks = async () => {
     try {
+        let token = localStorage.getItem("token");
+        
         const response = await axios.get("https://localhost:7289/api/Task", {
             headers: {
-                Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoi0JjQstCw0L0iLCJleHAiOjE3NDcwODg5MjksImlzcyI6IlRhc2tPcmdhbml6ZXJBUEkiLCJhdWQiOiJUYXNrT3JnYW5pemVyQ2xpZW50In0.rYwkvYuqCUWYHkn45n1N3XaL788iulzLeBbU9wgaf9M`
+                Authorization: `Bearer ${token}`
             }
         });
         return response.data;
 
     } catch (e) {
+        console.log(e);
+        if (e.response && e.response.status === 401) {
+            throw new Error("Войдите в свою учетную запись или зарегистрируйтесь для работы с сервисом.");
+        }
         console.error(e);
     }
 
 
 }
+
+export const updateTask = async (task) => {
+    try {
+        const token = localStorage.getItem("token");
+        
+        if (!token) {
+            throw new Error("Токен не найден, пожалуйста, войдите.");
+        }
+
+        const response = await axios.put(
+            `https://localhost:7289/api/Task`,
+            {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                dueDate: task.dueDate,
+                priority: task.priority,
+                category: task.category,
+                condition: task.condition,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            }
+        );
+
+        return response.data;
+
+    } catch (e) {
+        console.error(e);
+
+        // Обработка ошибок по статусу
+        if (e.response && e.response.status === 401) {
+            throw new Error("Войдите в свою учетную запись или зарегистрируйтесь для работы с сервисом.");
+        } else if (e.response && e.response.status === 403) {
+            throw new Error("У вас нет прав на редактирование этой задачи.");
+        } else if (e.response && e.response.status === 404) {
+            throw new Error("Задача не найдена.");
+        } else {
+            throw new Error(e.message);
+        }
+    }
+}
+

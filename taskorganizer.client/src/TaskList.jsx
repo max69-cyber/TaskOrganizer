@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from 'react';
 import { DeleteIcon, EditIcon, TimeIcon } from '@chakra-ui/icons';
 import { getTasks } from './services/tasksAPI.js';
+import ErrorPage from './ErrorPage.jsx';
 
 const PriorityBadge = ({ priority }) => {
     const colorScheme = {
@@ -30,7 +31,7 @@ const PriorityBadge = ({ priority }) => {
     return <Badge colorScheme={colorScheme}>{text}</Badge>;
 };
 
-const TaskList = () => {
+const TaskList = ({selectedTask, onSelect}) => {
     const [tasks, setTasks] = useState([]);
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -64,17 +65,20 @@ const TaskList = () => {
         });
     };
     
-    if (error) return <div className="flex items-center justify-center">
-        <div className="p-8 bg-white rounded shadow-lg">
-            <Text className="text-2xl font-bold text-red-600 text-center mb-8" color="red.500">{error}</Text>
-        </div>
-    </div>
+    if(error !== null) {
+        return (
+            <ErrorPage
+                error={error}
+            />
+        )
+    }
     
     return (
         <Box className="p-4" 
              maxW="800px" 
              mx="auto"
         >
+            
             <Text fontSize="2xl" mb={6} fontWeight="bold">Список задач</Text>
             <Box maxH="calc(100vh - 200px)"
                  overflowY="auto"
@@ -94,6 +98,11 @@ const TaskList = () => {
                                         task.priority === 'Medium' ? 'orange.500' : 'green.500'
                             }
                             opacity={task.condition ? 0.8 : 1}
+                            onClick={() => onSelect(task)}
+                            borderRightWidth={selectedTask?.id === task.id ? '2px' : '1px'}
+                            borderRightColor={selectedTask?.id === task.id ? 'teal.500' : 'gray.200'}
+                            cursor="pointer"
+                            position="relative"
                         >
                             <HStack justify="space-between" align="center">
                                 <HStack align="flex-start" spacing={4}>
@@ -126,8 +135,27 @@ const TaskList = () => {
                                     colorScheme="teal"
                                     size="lg"
                                     m={2}
+                                    onChange={(e) => {}}
                                 />
                             </HStack>
+                            
+                            <Button
+                                position="absolute"
+                                top={0}
+                                left={0}
+                                w="100%"
+                                h="100%"
+                                p={0}
+                                bg="transparent"
+                                onClick={() => {
+                                    onSelect(task);
+                                console.log(task);
+                                console.log(task.id);
+                                console.log(selectedTask);
+                                }
+                                }
+                                zIndex={1}
+                            />
                         </Box>
                     ))}
                 </VStack>

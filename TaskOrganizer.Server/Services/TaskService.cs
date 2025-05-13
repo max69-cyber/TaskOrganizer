@@ -20,6 +20,7 @@ public class TaskService : ITaskService
             .Where(t => t.UserID == userId)
             .Select(t => new TasksListDTO
             {
+                ID = t.ID,
                 Title = t.Title,
                 Description = t.Description,
                 DueDate = t.DueDate,
@@ -63,7 +64,7 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateTask(int userId, int taskId, TasksListDTO dto)
+    public async Task UpdateTask(int userId, TasksListDTO dto)
     {
         var category = await _context.Categories
             .FirstOrDefaultAsync(c => c.Name == dto.Category);
@@ -81,8 +82,8 @@ public class TaskService : ITaskService
         }
         
         var updatedTask = await _context.Tasks
-            .FirstOrDefaultAsync(t => t.ID == taskId && t.UserID == userId);
-        if (updatedTask == null)         
+            .FirstOrDefaultAsync(t => t.ID == dto.ID && t.UserID == userId);
+        if (updatedTask == null)
         {
             throw new Exception("No access or doesn't exist.");
         }

@@ -5,20 +5,17 @@ import { Link } from 'react-router-dom';
 import LogoutIcon from "./assets/LogoutIcon.jsx";
 import ChevroneLeft from "./assets/ChevroneLeft.jsx";
 import ChevroneRight from "./assets/ChevroneRight.jsx";
+import LoginIcon from "@/assets/LoginIcon.jsx";
+import { jwtDecode } from "jwt-decode";
+import HomeIcon from "@/assets/HomeIcon.jsx";
 
-
-
-// ЧТО ДОДЕЛАТЬ
-// Кнопку на закрытом баре
-// кнопки в листе ссылок
-// функционал всего
-//поменять крестик на стрелку и при закрытом на другую стрелку или вообще на значок сайдбара
-
-
-const Sidebar = ({ isOpen, onToggle }) => {
+const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout }) => {
     const { colorMode, toggleColorMode } = useColorMode();
     const bg = useColorModeValue('gray.100', 'gray.900');
     const color = useColorModeValue('gray.800', 'white');
+    
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
 
     return (
         <Box
@@ -55,6 +52,22 @@ const Sidebar = ({ isOpen, onToggle }) => {
                       borderTopColor={useColorModeValue('gray.200', 'gray.700')}
                 >
                     <VStack align="start" spacing={1} w="full">
+                        <Link to="/tasks" style={{ width: '100%' }}>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                color={useColorModeValue('gray.800', 'white')}
+                                _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
+                                fontSize="s"
+                                w="full"
+                                rounded="lg"
+                                justifyContent="flex-start"
+                                leftIcon={<HomeIcon/>}
+                            >
+                                Главная
+                            </Button>
+                        </Link>
+                        
                         <Link to="/doctors" style={{ width: '100%' }}>
                             <Button
                                 variant="ghost"
@@ -87,7 +100,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                             </Button>
                         </Link>
 
-                        <Link to="/doctors" style={{ width: '100%' }}>
+                        <Link to="/edit" style={{ width: '100%' }}>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -136,6 +149,7 @@ const Sidebar = ({ isOpen, onToggle }) => {
                         </Link>
                     </VStack>
 
+                    {isAuthorised && (
                     <Box mt="auto" pt={2} borderTopWidth="1px" borderTopColor={useColorModeValue('gray.200', 'gray.700')}>
                         <Flex align="center" justify="space-between" w="full">
                             <Link to="/doctors" style={{ width: '100%' }}>
@@ -145,10 +159,10 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                     color={useColorModeValue('gray.800', 'white')}
                                     _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
                                     fontSize="s"
-                                    w="full"
+                                    w="48"
                                     rounded="lg"
                                     justifyContent="flex-start"
-                                    p={5}
+                                    p={2}
                                 >
                                     <HStack spacing={2} flex="1" overflow="hidden">
                                         <Avatar
@@ -157,9 +171,9 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                             src="https://bit.ly/dan-abramov"
                                         />
                                         <Box overflow="hidden">
-                                            <Text fontSize="sm" fontWeight="medium" isTruncated>Иван Иванов</Text>
+                                            <Text fontSize="sm" fontWeight="medium" isTruncated>{decodedToken.FullName}</Text>
                                             <Text fontSize="xs" color={useColorModeValue('gray.500', 'gray.400')} isTruncated>
-                                                user@example.com
+                                                {decodedToken.Email}
                                             </Text>
                                         </Box>
                                     </HStack>
@@ -174,9 +188,35 @@ const Sidebar = ({ isOpen, onToggle }) => {
                                 color={color}
                                 _hover={{ bg: useColorModeValue('gray.300', 'gray.700')  }}
                                 ml={2}
+                                onClick={onLogout}
                             />
                         </Flex>
                     </Box>
+                        )}
+
+                    {!isAuthorised && (
+                        <Box mt="auto" pt={2} borderTopWidth="1px" borderTopColor={useColorModeValue('gray.200', 'gray.700')}>
+                            <Flex align="center" justify="space-between" w="full">
+                                <Link to="/login" style={{ width: '100%' }}>
+                                    <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        color={useColorModeValue('gray.800', 'white')}
+                                        _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
+                                        fontSize="s"
+                                        w="full"
+                                        rounded="lg"
+                                        justifyContent="flex-start"
+                                        p={5}
+                                        leftIcon={<LoginIcon/>}
+                                    >
+                                        <Text fontSize="s">Вход / Регистрация</Text> 
+                                    </Button>
+                                </Link>
+                            </Flex>
+                        </Box>
+                    )}
+                    
                 </Flex>
             )}
         </Box>

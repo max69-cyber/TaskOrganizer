@@ -39,13 +39,14 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddTransient<IAuthorisationService,AuthorisationService>();
 
-builder.Services.AddCors(options =>
+builder.Services.AddCors(options => 
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("https://localhost:60078")
+            .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowCredentials();
     });
 });
 
@@ -53,7 +54,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "HospitalApp API", Version = "v1" });
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "TaskOrganizer API", Version = "v1" });
 
     // Добавляем схему безопасности
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -94,10 +95,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCors("AllowFrontend");
+
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.UseCors("AllowAll");
 
 app.MapControllers();
 
