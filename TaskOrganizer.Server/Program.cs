@@ -1,4 +1,5 @@
 using System.Text;
+using CategoryOrganizer.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -37,6 +38,7 @@ builder.Services.AddAuthentication(options =>
     });
 
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddTransient<IAuthorisationService,AuthorisationService>();
 
 builder.Services.AddCors(options => 

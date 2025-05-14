@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import { Flex, Box } from "@chakra-ui/react";
 import Sidebar from "./Sidebar.jsx";
-import Authorisation from "./Authorisation.jsx";
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import TaskList from "@/TaskList.jsx";
 import LoginPage from "@/LoginPage.jsx";

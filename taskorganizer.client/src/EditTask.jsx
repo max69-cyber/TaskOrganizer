@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Input, Text, VStack, FormControl, FormLabel, Textarea, Checkbox, useToast } from '@chakra-ui/react';
-import {updateTask} from "@/services/tasksAPI.js";
+import { Box, Button, Input, Text, VStack, FormControl, FormLabel, Textarea, Checkbox, useToast, useColorModeValue, Select } from '@chakra-ui/react';
+import {getTasks, updateTask} from "@/services/tasksAPI.js";
+import {getCategories} from "@/services/categoriesAPI.js";
+import ErrorPage from "@/ErrorPage.jsx";
 
 const EditTask = ({ task }) => {
     const [title, setTitle] = useState(task?.title || '');
@@ -12,6 +14,27 @@ const EditTask = ({ task }) => {
     const [condition, setCondition] = useState(task?.condition || false);
     const toast = useToast();
     const navigate = useNavigate();
+    const [categories, setCategories] = useState([]);
+    const [error, setError] = useState(null);
+    
+    
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const tasksData = await getCategories();
+                setCategories(tasksData);
+            } catch (e) {
+                setError(e.message);
+            }
+        };
+        fetchData();
+    }, []);
+    
+    const priorityOptions = [
+        { value: 'High', label: 'Высокий' },
+        { value: 'Medium', label: 'Средний' },
+        { value: 'Low', label: 'Низкий' }
+    ];
 
     const handleSave = async () => {
         const updatedTask = { ...task, title, description, dueDate, priority, category, condition };
@@ -21,8 +44,16 @@ const EditTask = ({ task }) => {
         navigate('/tasks');
     };
 
+    if(error !== null) {
+        return (
+            <ErrorPage
+                error={error}
+            />
+        )
+    }
+
     return (
-        <Box p={8} bg="white" shadow="md" borderRadius="md">
+        <Box p={8} bg={useColorModeValue('white', 'gray.800')} shadow="md" borderRadius="md">
             <Text fontSize="2xl" mb={4}>Редактировать задачу</Text>
             <VStack spacing={4} align="stretch">
                 <FormControl>
@@ -39,11 +70,23 @@ const EditTask = ({ task }) => {
                 </FormControl>
                 <FormControl>
                     <FormLabel>Приоритет</FormLabel>
-                    <Textarea value={priority} onChange={(e) => setPriority(e.target.value)} placeholder="Введите описание" />
+                    <Select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                        {priorityOptions.map(option => (
+                            <option key={option.value} value={option.value}>
+                                {option.label}
+                            </option>
+                        ))}
+                    </Select>
                 </FormControl>
                 <FormControl>
                     <FormLabel>Категория</FormLabel>
-                    <Textarea value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Введите описание" />
+                    <Select value={category} onChange={(e) => setCategory(e.target.value)}>
+                        {categories.map(option => (
+                            <option key={option.id}>
+                                {option.name}
+                            </option>
+                        ))}
+                    </Select>
                 </FormControl>
                 <FormControl display="flex" alignItems="center">
                     <Checkbox isChecked={condition} onChange={(e) => setCondition(e.target.checked)}>Выполнено</Checkbox>

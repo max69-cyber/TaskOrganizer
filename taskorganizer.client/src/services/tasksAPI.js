@@ -13,7 +13,9 @@ export const getTasks = async () => {
 
     } catch (e) {
         console.log(e);
-        if (e.response && e.response.status === 401) {
+        if (e.response && e.response.status === 401 && localStorage.getItem("token")) {
+            throw new Error("Сессия истекла, зайдите заново.");
+        } else if (e.response && e.response.status === 401) {
             throw new Error("Войдите в свою учетную запись или зарегистрируйтесь для работы с сервисом.");
         }
         console.error(e);
@@ -52,11 +54,9 @@ export const updateTask = async (task) => {
 
     } catch (e) {
         console.error(e);
-
-        // Обработка ошибок по статусу
         if (e.response && e.response.status === 401) {
             throw new Error("Войдите в свою учетную запись или зарегистрируйтесь для работы с сервисом.");
-        } else if (e.response && e.response.status === 403) {
+        }else if (e.response && e.response.status === 403) {
             throw new Error("У вас нет прав на редактирование этой задачи.");
         } else if (e.response && e.response.status === 404) {
             throw new Error("Задача не найдена.");

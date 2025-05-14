@@ -99,10 +99,15 @@ const TaskList = ({selectedTask, onSelect}) => {
                             }
                             opacity={task.condition ? 0.8 : 1}
                             onClick={() => onSelect(task)}
-                            borderRightWidth={selectedTask?.id === task.id ? '2px' : '1px'}
+                            borderRightWidth={selectedTask?.id === task.id ? '4px' : '1px'}
                             borderRightColor={selectedTask?.id === task.id ? 'teal.500' : 'gray.200'}
+                            borderBottomWidth={selectedTask?.id === task.id ? '4px' : '1px'}
+                            borderBottomColor={selectedTask?.id === task.id ? 'teal.500' : 'gray.200'}
                             cursor="pointer"
                             position="relative"
+                            _hover={{
+                                transform: 'scale(0.97)',
+                            }}
                         >
                             <HStack justify="space-between" align="center">
                                 <HStack align="flex-start" spacing={4}>
@@ -138,7 +143,7 @@ const TaskList = ({selectedTask, onSelect}) => {
                                     onChange={(e) => {}}
                                 />
                             </HStack>
-                            
+
                             <Button
                                 position="absolute"
                                 top={0}
@@ -147,6 +152,15 @@ const TaskList = ({selectedTask, onSelect}) => {
                                 h="100%"
                                 p={0}
                                 bg="transparent"
+                                _hover={{
+                                    bg: 'transparent',
+                                    transform: 'none',
+                                    shadow: 'none'
+                                }}
+                                _active={{
+                                    bg: 'transparent',
+                                    transform: 'none'
+                                }}
                                 onClick={() => {
                                     onSelect(task);
                                 console.log(task);
