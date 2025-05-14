@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, IconButton, useColorMode, useColorModeValue, HStack, VStack, Flex, Avatar, Text } from '@chakra-ui/react';
-import { SunIcon, MoonIcon, SearchIcon, AddIcon, EditIcon, DeleteIcon, BellIcon } from '@chakra-ui/icons';
+import { SunIcon, MoonIcon, SearchIcon, AddIcon, EditIcon, DeleteIcon, BellIcon, useToast } from '@chakra-ui/icons';
 import { Link } from 'react-router-dom';
 import LogoutIcon from "./assets/LogoutIcon.jsx";
 import ChevroneLeft from "./assets/ChevroneLeft.jsx";
@@ -8,14 +8,37 @@ import ChevroneRight from "./assets/ChevroneRight.jsx";
 import LoginIcon from "@/assets/LoginIcon.jsx";
 import { jwtDecode } from "jwt-decode";
 import HomeIcon from "@/assets/HomeIcon.jsx";
+import {deleteTask} from "@/services/tasksAPI.js";
 
-const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout }) => {
+const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout, selectedTask, onDelete }) => {
     const { colorMode, toggleColorMode } = useColorMode();
     const bg = useColorModeValue('gray.100', 'gray.900');
     const color = useColorModeValue('gray.800', 'white');
-    
+
+    const toast = useToast();
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token);
+
+    const handleDeleteTask = async (task) => {
+        try {
+            await deleteTask(task.id);
+            onDelete(task.id);
+            toast({
+                title: 'Задача удалена!',
+                status: 'success',
+                duration: 3000,
+                isClosable: true
+            });
+        } catch (error) {
+                toast({
+                    title: 'Ошибка при удалении задачи',
+                    description: error.message,
+                    status: 'error',
+                    duration: 5000,
+                    isClosable: true
+                });
+        }
+    };
 
     return (
         <Box
@@ -115,22 +138,21 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout }) => {
                                 Редактировать
                             </Button>
                         </Link>
-
-                        <Link to="/doctors" style={{ width: '100%' }}>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                color={useColorModeValue('gray.800', 'white')}
-                                _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
-                                fontSize="s"
-                                w="full"
-                                rounded="lg"
-                                justifyContent="flex-start"
-                                leftIcon={<DeleteIcon/>}
-                            >
-                                Удалить
-                            </Button>
-                        </Link>
+                        
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            color={useColorModeValue('gray.800', 'white')}
+                            _hover={{ bg: useColorModeValue('gray.300', 'gray.700') }}
+                            fontSize="s"
+                            w="full"
+                            rounded="lg"
+                            justifyContent="flex-start"
+                            leftIcon={<DeleteIcon/>}
+                            onClick={() => handleDeleteTask(selectedTask)}
+                        >
+                            Удалить
+                        </Button>
 
                         <Link to="/doctors" style={{ width: '100%' }}>
                             <Button

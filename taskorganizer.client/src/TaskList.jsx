@@ -31,8 +31,8 @@ const PriorityBadge = ({ priority }) => {
     return <Badge colorScheme={colorScheme}>{text}</Badge>;
 };
 
-const TaskList = ({selectedTask, onSelect}) => {
-    const [tasks, setTasks] = useState([]);
+const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
+
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 

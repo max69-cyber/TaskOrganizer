@@ -12,6 +12,7 @@ function App() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
     const [isAuthorised, setAuthorised] = useState(!!localStorage.getItem('token'));
     const [selectedTask, setSelectedTask] = useState(null);
+    const [tasks, setTasks] = useState([]);
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -28,12 +29,16 @@ function App() {
         localStorage.removeItem('token');
         setAuthorised(false);
     };
+
+    const handleTaskDeleted = (deletedTaskId) => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== deletedTaskId));
+    };
     
     return (
         <Router>
             <Flex className="h-screen">
                 {isAuthorised && (
-                    <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} isAuthorised={isAuthorised} onLogout={handleLogout} />
+                    <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} isAuthorised={isAuthorised} onLogout={handleLogout} selectedTask={selectedTask} onDelete={handleTaskDeleted}/>
                 )}
 
                 <Box flex="1" p={4} display="flex" justifyContent="center" alignItems="center">
@@ -43,7 +48,7 @@ function App() {
                         ) : (
                             <>
                                 <Route path="/" element={<Navigate to="/tasks" />} />2
-                                <Route path="/tasks" element={<TaskList selectedTask={selectedTask} onSelect={setSelectedTask}/>} />
+                                <Route path="/tasks" element={<TaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
                                 <Route path="/edit" element={<EditTask task={selectedTask}/>} />
                                 <Route path="/create" element={<CreateTask/>} />
                             </>
