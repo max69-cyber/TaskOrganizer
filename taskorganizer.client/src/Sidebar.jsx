@@ -84,7 +84,7 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout }) => {
                             </Button>
                         </Link>
                         
-                        <Link to="/doctors" style={{ width: '100%' }}>
+                        <Link to="/create" style={{ width: '100%' }}>
                             <Button
                                 variant="ghost"
                                 size="sm"

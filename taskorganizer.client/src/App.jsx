@@ -6,6 +6,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import TaskList from "@/TaskList.jsx";
 import LoginPage from "@/LoginPage.jsx";
 import EditTask from "@/EditTask.jsx";
+import CreateTask from "@/CreateTask.jsx";
 
 function App() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -44,6 +45,7 @@ function App() {
                                 <Route path="/" element={<Navigate to="/tasks" />} />2
                                 <Route path="/tasks" element={<TaskList selectedTask={selectedTask} onSelect={setSelectedTask}/>} />
                                 <Route path="/edit" element={<EditTask task={selectedTask}/>} />
+                                <Route path="/create" element={<CreateTask/>} />
                             </>
                         )}
                         {!isAuthorised && <Route path="*" element={<Navigate to="/login" />} />}
