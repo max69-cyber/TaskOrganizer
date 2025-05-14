@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { useEffect, useState } from 'react';
 import { DeleteIcon, EditIcon, TimeIcon } from '@chakra-ui/icons';
-import { getTasks } from './services/tasksAPI.js';
+import {getTasks, updateTask} from './services/tasksAPI.js';
 import ErrorPage from './ErrorPage.jsx';
 
 const PriorityBadge = ({ priority }) => {
@@ -63,6 +63,26 @@ const TaskList = ({selectedTask, onSelect}) => {
             hour: '2-digit',
             minute: '2-digit'
         });
+    };
+
+    const handleTaskComplete = async (task) => {
+        try {
+            setTasks(prevTasks =>
+                prevTasks.map(t =>
+                    t.id === task.id ? { ...t, condition: !t.condition } : t
+                )
+            );
+            
+            await updateTask({ ...task, condition: !task.condition });
+
+        } catch (error) {
+            setTasks(prevTasks =>
+                prevTasks.map(t =>
+                    t.id === task.id ? { ...t, condition: t.condition } : t
+                )
+            );
+            console.error("Ошибка:", error);
+        }
     };
     
     if(error !== null) {
@@ -140,7 +160,8 @@ const TaskList = ({selectedTask, onSelect}) => {
                                     colorScheme="teal"
                                     size="lg"
                                     m={2}
-                                    onChange={(e) => {}}
+                                    onChange={(e) => handleTaskComplete(task)}
+                                    zIndex={2}
                                 />
                             </HStack>
 
