@@ -4,6 +4,9 @@ import { Box, Button, Input, Text, VStack, FormControl, FormLabel, Textarea, Che
 import {getTasks, updateTask} from "@/services/tasksAPI.js";
 import {getCategories} from "@/services/categoriesAPI.js";
 import ErrorPage from "@/ErrorPage.jsx";
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import CustomDateTimePicker from "@/CustomDateTimePicker.jsx";
 
 const EditTask = ({ task }) => {
     const [title, setTitle] = useState(task?.title || '');
@@ -29,6 +32,25 @@ const EditTask = ({ task }) => {
         };
         fetchData();
     }, []);
+
+    const parseDateFromString = (dateString) => {
+        if (!dateString) return null;
+
+        try {
+            const cleanedDate = dateString.split('.')[0].replace(' +00:00', '');
+            const date = new Date(cleanedDate);
+            return isNaN(date.getTime()) ? null : date;
+        } catch (e) {
+            console.error('Ошибка парсинга даты:', e);
+            return null;
+        }
+    };
+
+    useEffect(() => {
+        if (task?.dueDate) {
+            setDueDate(parseDateFromString(task.dueDate));
+        }
+    }, [task]);
     
     const priorityOptions = [
         { value: 'High', label: 'Высокий' },
@@ -37,7 +59,7 @@ const EditTask = ({ task }) => {
     ];
 
     const handleSave = async () => {
-        const updatedTask = { ...task, title, description, dueDate, priority, category, condition };
+        const updatedTask = { ...task, title, description, dueDate:dueDate.toISOString(), priority, category, condition };
         console.log(updatedTask);
         await updateTask(updatedTask);
         toast({ title: 'Задача обновлена.', status: 'success', duration: 3000, isClosable: true });
@@ -66,7 +88,10 @@ const EditTask = ({ task }) => {
                 </FormControl>
                 <FormControl>
                     <FormLabel>Дата выполнения</FormLabel>
-                    <Input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+                        <CustomDateTimePicker
+                            selected={dueDate}
+                            onChange={(date) => setDueDate(date)}
+                        />
                 </FormControl>
                 <FormControl>
                     <FormLabel>Приоритет</FormLabel>
