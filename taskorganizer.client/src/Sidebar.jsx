@@ -91,7 +91,7 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout, selectedTask, onDel
                             </Button>
                         </Link>
                         
-                        <Link to="/doctors" style={{ width: '100%' }}>
+                        <Link to="/grouped-tasks" style={{ width: '100%' }}>
                             <Button
                                 variant="ghost"
                                 size="sm"
@@ -103,7 +103,7 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout, selectedTask, onDel
                                 justifyContent="flex-start"
                                 leftIcon={<SearchIcon/>}
                             >
-                                Поиск
+                                Группировка
                             </Button>
                         </Link>
                         

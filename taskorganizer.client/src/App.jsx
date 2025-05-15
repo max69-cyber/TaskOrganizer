@@ -7,6 +7,7 @@ import TaskList from "@/TaskList.jsx";
 import LoginPage from "@/LoginPage.jsx";
 import EditTask from "@/EditTask.jsx";
 import CreateTask from "@/CreateTask.jsx";
+import GroupedTaskList from "@/GroupedTaskList.jsx";
 
 function App() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -51,6 +52,7 @@ function App() {
                                 <Route path="/tasks" element={<TaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
                                 <Route path="/edit" element={<EditTask task={selectedTask}/>} />
                                 <Route path="/create" element={<CreateTask/>} />
+                                <Route path="/grouped-tasks" element={<GroupedTaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
                             </>
                         )}
                         {!isAuthorised && <Route path="*" element={<Navigate to="/login" />} />}
