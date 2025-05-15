@@ -71,8 +71,17 @@ public class TaskService : ITaskService
 
     public async Task UpdateTask(int userId, TasksListDTO dto)
     {
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Name == dto.Category);
+        int? categoryId = null;
+        if (dto.Category != null)
+        {
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == dto.Category);
+            if (category != null)
+            {
+                categoryId = category.ID;
+            }
+            else throw new Exception($"Category {dto.Category} not found");
+        }
             
         
         var priority = await _context.Priorities
@@ -93,7 +102,7 @@ public class TaskService : ITaskService
         updatedTask.Description = dto.Description;
         updatedTask.DueDate = dto.DueDate;
         updatedTask.PriorityID = priority.ID;
-        updatedTask.CategoryID = category.ID;
+        updatedTask.CategoryID = categoryId;
         updatedTask.Condition = dto.Condition;
         
         await _context.SaveChangesAsync();

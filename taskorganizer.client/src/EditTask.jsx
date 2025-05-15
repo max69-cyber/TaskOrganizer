@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, Input, Text, VStack, FormControl, FormLabel, Textarea, Checkbox, useToast, useColorModeValue, Select } from '@chakra-ui/react';
+import { Box, Button, Input, Text, VStack, FormControl, FormLabel, Textarea, Checkbox, useToast, useColorModeValue, Select, HStack } from '@chakra-ui/react';
 import {getTasks, updateTask} from "@/services/tasksAPI.js";
-import {getCategories} from "@/services/categoriesAPI.js";
+import {createCategory, getCategories} from "@/services/categoriesAPI.js";
 import ErrorPage from "@/ErrorPage.jsx";
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -19,6 +19,8 @@ const EditTask = ({ task }) => {
     const navigate = useNavigate();
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
+    const [newCategory, setNewCategory] = useState('');
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
     
     
     useEffect(() => {
@@ -59,11 +61,38 @@ const EditTask = ({ task }) => {
     ];
 
     const handleSave = async () => {
-        const updatedTask = { ...task, title, description, dueDate:dueDate.toISOString(), priority, category, condition };
-        console.log(updatedTask);
-        await updateTask(updatedTask);
-        toast({ title: 'Задача обновлена.', status: 'success', duration: 3000, isClosable: true });
-        navigate('/tasks');
+        try {
+            let finalCategory = category;
+    
+            if (showNewCategoryInput && newCategory.trim()) {
+                const createdCategory = await createCategory(newCategory);
+                finalCategory = createdCategory.name;
+            }
+            
+            const updatedTask = { 
+                ...task,
+                title,
+                description,
+                dueDate:dueDate.toISOString(),
+                priority,
+                category: finalCategory || null,
+                condition 
+            };
+            
+            await updateTask(updatedTask);
+            
+            toast({ title: 'Задача обновлена.', status: 'success', duration: 3000, isClosable: true });
+            navigate('/tasks');
+
+        } catch (error) {
+            toast({
+                title: 'Ошибка при создании задачи',
+                description: error.message,
+                status: 'error',
+                duration: 5000,
+                isClosable: true
+            });
+    }
     };
 
     if(error !== null) {
@@ -104,14 +133,40 @@ const EditTask = ({ task }) => {
                     </Select>
                 </FormControl>
                 <FormControl>
-                    <FormLabel>Категория</FormLabel>
-                    <Select value={category} onChange={(e) => setCategory(e.target.value)}>
-                        {categories.map(option => (
-                            <option key={option.id}>
-                                {option.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <FormLabel fontWeight="medium">Категория</FormLabel>
+                    <HStack>
+                        <Select
+                            value={category}
+                            onChange={(e) => {
+                                setCategory(e.target.value);
+                                if (e.target.value === 'new') {
+                                    setShowNewCategoryInput(true);
+                                    setCategory('');
+                                } else {
+                                    setShowNewCategoryInput(false);
+                                }
+                            }}
+                            size="lg"
+                            flex="1"
+                        >
+                            <option value="">Без категории</option>
+                            {categories.map(cat => (
+                                <option key={cat.id} value={cat.name}>
+                                    {cat.name}
+                                </option>
+                            ))}
+                            <option value="new">+ Новая категория</option>
+                        </Select>
+
+                        {showNewCategoryInput && (
+                            <Input
+                                value={newCategory}
+                                onChange={(e) => setNewCategory(e.target.value)}
+                                placeholder="Введите название"
+                                size="lg"
+                            />
+                        )}
+                    </HStack>
                 </FormControl>
                 <FormControl display="flex" alignItems="center">
                     <Checkbox isChecked={condition} onChange={(e) => setCondition(e.target.checked)}>Выполнено</Checkbox>
