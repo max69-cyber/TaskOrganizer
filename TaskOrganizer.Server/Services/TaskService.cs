@@ -35,11 +35,16 @@ public class TaskService : ITaskService
 
     public async Task AddTask(int userId, TasksListDTO dto)
     {
-        var category = await _context.Categories
-            .FirstOrDefaultAsync(c => c.Name == dto.Category);
-        if (category == null)
+        int? categoryId = null;
+        if (dto.Category != null)
         {
-            throw new Exception("Failed to find category");
+            var category = await _context.Categories
+                .FirstOrDefaultAsync(c => c.Name == dto.Category);
+            if (category != null)
+            {
+                categoryId = category.ID;
+            }
+            else throw new Exception($"Category {dto.Category} not found");
         }
         
         var priority = await _context.Priorities
@@ -55,7 +60,7 @@ public class TaskService : ITaskService
             Description = dto.Description,
             DueDate = dto.DueDate,
             PriorityID = priority.ID,
-            CategoryID = category.ID,
+            CategoryID = categoryId,
             UserID = userId,
             Condition = dto.Condition
         };
@@ -68,10 +73,6 @@ public class TaskService : ITaskService
     {
         var category = await _context.Categories
             .FirstOrDefaultAsync(c => c.Name == dto.Category);
-        if (category == null)
-        {
-            throw new Exception("Failed to find category");
-        }
             
         
         var priority = await _context.Priorities

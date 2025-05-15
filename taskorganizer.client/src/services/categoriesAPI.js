@@ -21,3 +21,30 @@ export const getCategories = async () => {
         console.error(e);
     }
 }
+
+export const createCategory = async (categoryName) => {
+    try {
+        const token = localStorage.getItem("token");
+        const response = await axios.post(
+            `https://localhost:7289/api/Category`,
+            {
+                id: 0,
+                name: categoryName
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+        return response.data;
+    } catch (e) {
+        if (e.response && e.response.status === 401 && localStorage.getItem("token")) {
+            throw new Error("Сессия истекла, зайдите заново.");
+        } else if (e.response && e.response.status === 401) {
+            throw new Error("Войдите в свою учетную запись или зарегистрируйтесь для работы с сервисом.");
+        }
+        console.error(e);
+    }
+};

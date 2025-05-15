@@ -24,7 +24,7 @@ public class CategoryService : ICategoryService
         return response;
     }
 
-    public async Task AddCategory(int userId, CategoryModel dto)
+    public async Task AddCategory(int userId, CategoryDTO dto)
     {
         var category = new CategoryModel
         {
@@ -36,7 +36,7 @@ public class CategoryService : ICategoryService
         await _context.SaveChangesAsync();
     }
 
-    public async Task UpdateCategory(int userId, CategoryModel dto)
+    public async Task UpdateCategory(int userId, CategoryDTO dto)
     {
         var updatedCategory = await _context.Categories
             .FirstOrDefaultAsync(t => t.ID == dto.ID && t.UserID == userId);

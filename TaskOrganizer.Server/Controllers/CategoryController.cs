@@ -34,7 +34,7 @@ public class CategoryController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<CategoryModel>>> GetCategories()
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
     {
         try
         {
@@ -49,7 +49,7 @@ public class CategoryController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult> CreateCategory([FromBody] CategoryModel dto)
+    public async Task<ActionResult> CreateCategory([FromBody] CategoryDTO dto)
     {
         try
         {
@@ -64,7 +64,7 @@ public class CategoryController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult> UpdateCategory([FromBody] CategoryModel dto)
+    public async Task<ActionResult> UpdateCategory([FromBody] CategoryDTO dto)
     {
         try
         {

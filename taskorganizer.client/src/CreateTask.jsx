@@ -12,10 +12,13 @@ import {
     Checkbox,
     useToast,
     useColorModeValue,
-    Select
+    Select,
+    FormHelperText,
+    HStack,
+    SimpleGrid
 } from '@chakra-ui/react';
 import { createTask } from "@/services/tasksAPI.js";
-import { getCategories } from "@/services/categoriesAPI.js";
+import {createCategory, getCategories} from "@/services/categoriesAPI.js";
 import ErrorPage from "@/ErrorPage.jsx";
 import CustomDateTimePicker from "@/CustomDateTimePicker.jsx";
 
@@ -28,6 +31,8 @@ const CreateTask = () => {
     const [condition, setCondition] = useState(false);
     const [categories, setCategories] = useState([]);
     const [error, setError] = useState(null);
+    const [newCategory, setNewCategory] = useState('');
+    const [showNewCategoryInput, setShowNewCategoryInput] = useState(false);
 
     const toast = useToast();
     const navigate = useNavigate();
@@ -55,12 +60,19 @@ const CreateTask = () => {
 
     const handleSubmit = async () => {
         try {
+            let finalCategory = category;
+            
+            if (showNewCategoryInput && newCategory.trim()) {
+                const createdCategory = await createCategory(newCategory);
+                finalCategory = createdCategory.name;
+            }
+            
             const newTask = {
                 title,
                 description,
                 dueDate: dueDate ? dueDate.toISOString() : null,
                 priority,
-                category,
+                category: finalCategory || null,
                 condition
             };
 
@@ -91,86 +103,132 @@ const CreateTask = () => {
     }
 
     return (
-        <Box p={8} bg={useColorModeValue('white', 'gray.800')} shadow="md" borderRadius="md">
-            <Text fontSize="2xl" mb={4}>Создать новую задачу</Text>
-            <VStack spacing={4} align="stretch">
-                <FormControl isRequired>
-                    <FormLabel>Заголовок</FormLabel>
-                    <Input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Введите заголовок"
-                    />
-                </FormControl>
+        <Box
+            p={8}
+            bg={useColorModeValue('white', 'gray.800')}
+            shadow="md"
+            borderRadius="md"
+            maxW="800px"
+            mx="auto"
+        >
+            <Text fontSize="2xl" mb={6} fontWeight="bold">Создать новую задачу</Text>
 
-                <FormControl>
-                    <FormLabel>Описание</FormLabel>
-                    <Textarea
-                        value={description}
-                        onChange={(e) => setDescription(e.target.value)}
-                        placeholder="Введите описание"
-                    />
-                </FormControl>
+            <VStack spacing={6} align="stretch">
+                <Box>
+                    <FormControl isRequired mb={4}>
+                        <FormLabel fontWeight="medium">Заголовок</FormLabel>
+                        <Input
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Краткое название задачи"
+                            size="lg"
+                        />
+                    </FormControl>
 
-                <FormControl>
-                    <FormLabel>Дата выполнения</FormLabel>
-                    <CustomDateTimePicker
-                        selected={dueDate}
-                        onChange={(date) => setDueDate(date)}
-                    />
-                </FormControl>
+                    <FormControl>
+                        <FormLabel fontWeight="medium">Описание</FormLabel>
+                        <Textarea
+                            value={description}
+                            onChange={(e) => setDescription(e.target.value)}
+                            placeholder="Подробное описание задачи"
+                            size="lg"
+                            minH="120px"
+                        />
+                    </FormControl>
+                </Box>
+                
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                    <FormControl isRequired>
+                        <FormLabel fontWeight="medium">Дата выполнения</FormLabel>
+                        <CustomDateTimePicker
+                            selected={dueDate}
+                            onChange={(date) => setDueDate(date)}
+                        />
+                    </FormControl>
+                    
+                    <FormControl>
+                        <FormLabel fontWeight="medium">Приоритет</FormLabel>
+                        <Select
+                            value={priority}
+                            onChange={(e) => setPriority(e.target.value)}
+                            size="lg"
+                        >
+                            {priorityOptions.map(option => (
+                                <option key={option.value} value={option.value}>
+                                    {option.label}
+                                </option>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    
+                    <FormControl>
+                        <FormLabel fontWeight="medium">Категория</FormLabel>
+                        <HStack>
+                            <Select
+                                value={category}
+                                onChange={(e) => {
+                                    setCategory(e.target.value);
+                                    if (e.target.value === 'new') {
+                                        setShowNewCategoryInput(true);
+                                        setCategory('');
+                                    } else {
+                                        setShowNewCategoryInput(false);
+                                    }
+                                }}
+                                size="lg"
+                                flex="1"
+                            >
+                                <option value="">Без категории</option>
+                                {categories.map(cat => (
+                                    <option key={cat.id} value={cat.name}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                                <option value="new">+ Новая категория</option>
+                            </Select>
 
-                <FormControl>
-                    <FormLabel>Приоритет</FormLabel>
-                    <Select
-                        value={priority}
-                        onChange={(e) => setPriority(e.target.value)}
+                            {showNewCategoryInput && (
+                                <Input
+                                    value={newCategory}
+                                    onChange={(e) => setNewCategory(e.target.value)}
+                                    placeholder="Введите название"
+                                    size="lg"
+                                />
+                            )}
+                        </HStack>
+                    </FormControl>
+                    
+                    <FormControl display="flex" alignItems="flex-end">
+                        <Checkbox
+                            isChecked={condition}
+                            onChange={(e) => setCondition(e.target.checked)}
+                            size="lg"
+                            colorScheme="teal"
+                        >
+                            <Text fontWeight="medium">Задача выполнена</Text>
+                        </Checkbox>
+                    </FormControl>
+                </SimpleGrid>
+                
+                <HStack spacing={4} mt={8} justify="flex-end">
+                    <Button
+                        onClick={() => navigate('/tasks')}
+                        variant="outline"
+                        size="lg"
+                        width={{ base: '100%', md: 'auto' }}
                     >
-                        {priorityOptions.map(option => (
-                            <option key={option.value} value={option.value}>
-                                {option.label}
-                            </option>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                <FormControl>
-                    <FormLabel>Категория</FormLabel>
-                    <Select
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
+                        Отмена
+                    </Button>
+                    <Button
+                        colorScheme="teal"
+                        onClick={handleSubmit}
+                        isDisabled={!title}
+                        size="lg"
+                        width={{ base: '100%', md: 'auto' }}
                     >
-                        {categories.map(cat => (
-                            <option key={cat.id} value={cat.name}>
-                                {cat.name}
-                            </option>
-                        ))}
-                    </Select>
-                </FormControl>
-
-                <FormControl display="flex" alignItems="center">
-                    <Checkbox
-                        isChecked={condition}
-                        onChange={(e) => setCondition(e.target.checked)}
-                    >
-                        Выполнено
-                    </Checkbox>
-                </FormControl>
-
-                <Button
-                    colorScheme="teal"
-                    onClick={handleSubmit}
-                    isDisabled={!title} // Кнопка неактивна, пока нет заголовка
-                >
-                    Создать задачу
-                </Button>
-
-                <Button
-                    onClick={() => navigate('/tasks')}
-                    variant="outline"
-                >
-                    Отмена
-                </Button>
+                        Создать задачу
+                    </Button>
+                </HStack>
             </VStack>
         </Box>
     );
