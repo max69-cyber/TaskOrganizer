@@ -6,12 +6,13 @@ import {
     HStack,
     Checkbox,
     Button,
-    IconButton,
+    Select,
     Badge,
-    useColorModeValue
+    useColorModeValue,
+    IconButton
 } from '@chakra-ui/react';
-import { useEffect, useState } from 'react';
-import { DeleteIcon, EditIcon, TimeIcon } from '@chakra-ui/icons';
+import { useEffect, useState, useMemo } from 'react';
+import { ArrowDownIcon, ArrowUpIcon, TimeIcon } from '@chakra-ui/icons';
 import {getTasks, updateTask} from './services/tasksAPI.js';
 import ErrorPage from './ErrorPage.jsx';
 
@@ -35,6 +36,10 @@ const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
 
     const [error, setError] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [sortConfig, setSortConfig] = useState({
+        field: 'dueDate',
+        direction: 'asc'
+    });
 
     useEffect(() => {
         const fetchData = async () => {
@@ -54,7 +59,45 @@ const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
     const bgColor = useColorModeValue('white', 'gray.700');
     const completedColor = useColorModeValue('gray.200', 'gray.600');
 
-    // Функция для форматирования даты
+    const handleSortChange = (e) => {
+        const [field, direction] = e.target.value.split('-');
+        setSortConfig({ field, direction });
+    };
+
+    const sortedTasks = useMemo(() => {
+        const tasksCopy = [...tasks];
+
+        return tasksCopy.sort((a, b) => {
+            if (sortConfig.field === 'dueDate') {
+                const dateA = a.dueDate ? new Date(a.dueDate) : null;
+                const dateB = b.dueDate ? new Date(b.dueDate) : null;
+                
+                if (!dateA && !dateB) return 0;
+                if (!dateA) return 1;
+                if (!dateB) return -1;
+
+                return sortConfig.direction === 'asc'
+                    ? dateA - dateB
+                    : dateB - dateA;
+            }
+            
+            if (sortConfig.field === 'priority') {
+                const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+                return sortConfig.direction === 'asc'
+                    ? priorityOrder[a.priority] - priorityOrder[b.priority]
+                    : priorityOrder[b.priority] - priorityOrder[a.priority];
+            }
+            
+            if (sortConfig.field === 'condition') {
+                return sortConfig.direction === 'asc'
+                    ? (a.condition === b.condition ? 0 : a.condition ? 1 : -1)
+                    : (a.condition === b.condition ? 0 : a.condition ? -1 : 1);
+            }
+
+            return 0;
+        });
+    }, [tasks, sortConfig]);
+    
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         return date.toLocaleDateString('ru-RU', {
@@ -84,6 +127,20 @@ const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
             console.error("Ошибка:", error);
         }
     };
+
+    const toggleSortDirection = () => {
+        setSortConfig(prev => ({
+            ...prev,
+            direction: prev.direction === 'asc' ? 'desc' : 'asc'
+        }));
+    };
+
+    const handleFieldChange = (e) => {
+        setSortConfig({
+            field: e.target.value,
+            direction: 'asc'
+        });
+    };
     
     if(error !== null) {
         return (
@@ -98,13 +155,34 @@ const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
              maxW="800px" 
              mx="auto"
         >
+            <HStack justify="space-between" width="100%" mb={6}>
+                <Text fontSize="2xl" fontWeight="bold">Список задач</Text>
+                <HStack spacing={4}>
+                    {/* Выбор поля сортировки */}
+                    <Select
+                        value={sortConfig.field}
+                        onChange={handleFieldChange}
+                        width="200px"
+                    >
+                        <option value="dueDate">По дате</option>
+                        <option value="priority">По приоритету</option>
+                        <option value="condition">По статусу</option>
+                    </Select>
+                    
+                    <IconButton
+                        aria-label="Toggle sort direction"
+                        icon={sortConfig.direction === 'asc' ? <ArrowUpIcon /> : <ArrowDownIcon />}
+                        onClick={toggleSortDirection}
+                        variant="outline"
+                    />
+                </HStack>
+            </HStack>
             
-            <Text fontSize="2xl" mb={6} fontWeight="bold">Список задач</Text>
             <Box maxH="calc(100vh - 200px)"
                  overflowY="auto"
                  pr={1.5}>
                 <VStack spacing={4} align="stretch">
-                    {tasks.map((task) => (
+                    {sortedTasks.map((task) => (
                         <Box
                             key={task.id}
                             p={4}
