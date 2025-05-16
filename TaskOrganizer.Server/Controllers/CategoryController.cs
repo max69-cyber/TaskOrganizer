@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using CategoryOrganizer.Server.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskOrganizer.Server.Data;
@@ -10,13 +11,13 @@ namespace TaskOrganizer.Server.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [Authorize]
-public class TaskController : ControllerBase
+public class CategoryController : ControllerBase
 {
-    private readonly ITaskService _taskService;
+    private readonly ICategoryService _categoryService;
 
-    public TaskController(ITaskService taskService)
+    public CategoryController(ICategoryService categoryService)
     {
-        _taskService = taskService;
+        _categoryService = categoryService;
     }
     
     private int GetUserId()
@@ -33,13 +34,13 @@ public class TaskController : ControllerBase
 
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TasksListDTO>>> GetTasks()
+    public async Task<ActionResult<IEnumerable<CategoryDTO>>> GetCategories()
     {
         try
         {
             var userId = GetUserId();
-            var tasks = await _taskService.GetAllTasks(userId);
-            return Ok(tasks);
+            var categories = await _categoryService.GetAllCategories(userId);
+            return Ok(categories);
         }
         catch (Exception ex)
         {
@@ -48,12 +49,12 @@ public class TaskController : ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult> CreateTask([FromBody] TasksListDTO dto)
+    public async Task<ActionResult> CreateCategory([FromBody] CategoryDTO dto)
     {
         try
         {
             var userId = GetUserId();
-            await _taskService.AddTask(userId, dto);
+            await _categoryService.AddCategory(userId, dto);
             return Ok();
         }
         catch (Exception ex)
@@ -63,12 +64,12 @@ public class TaskController : ControllerBase
     }
 
     [HttpPut]
-    public async Task<ActionResult> UpdateTask([FromBody] TasksListDTO dto)
+    public async Task<ActionResult> UpdateCategory([FromBody] CategoryDTO dto)
     {
         try
         {
             var userId = GetUserId();
-            await _taskService.UpdateTask(userId, dto);
+            await _categoryService.UpdateCategory(userId, dto);
             return Ok();
         }
         catch (Exception ex)
@@ -77,13 +78,13 @@ public class TaskController : ControllerBase
         }
     }
     
-    [HttpDelete("{id}")]
+    [HttpDelete]
     public async Task<ActionResult> DeleteTask(int id)
     {
         try
         {
             var userId = GetUserId();
-            await _taskService.DeleteTask(userId, id);
+            await _categoryService.DeleteCategory(userId, id);
             return Ok();
         }
         catch (Exception ex)
