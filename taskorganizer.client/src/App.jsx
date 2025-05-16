@@ -8,6 +8,7 @@ import LoginPage from "@/LoginPage.jsx";
 import EditTask from "@/EditTask.jsx";
 import CreateTask from "@/CreateTask.jsx";
 import GroupedTaskList from "@/GroupedTaskList.jsx";
+import NotificationSettings from "@/NotificationSettings.jsx";
 
 function App() {
     const [isSidebarOpen, setSidebarOpen] = useState(true);
@@ -53,6 +54,7 @@ function App() {
                                 <Route path="/edit" element={<EditTask task={selectedTask}/>} />
                                 <Route path="/create" element={<CreateTask/>} />
                                 <Route path="/grouped-tasks" element={<GroupedTaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
+                                <Route path="/notification-settings" element={<NotificationSettings />}/>
                             </>
                         )}
                         {!isAuthorised && <Route path="*" element={<Navigate to="/login" />} />}

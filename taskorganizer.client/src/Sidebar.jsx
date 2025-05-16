@@ -152,7 +152,7 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout, selectedTask, onDel
                                 Удалить
                             </Button>
     
-                            <Link to="/doctors" style={{ width: '100%' }}>
+                            <Link to="/notification-settings" style={{ width: '100%' }}>
                                 <Button
                                     variant="ghost"
                                     size="sm"
@@ -187,8 +187,6 @@ const Sidebar = ({ isOpen, onToggle, isAuthorised, onLogout, selectedTask, onDel
                                         <HStack spacing={2} flex="1" overflow="hidden">
                                             <Avatar
                                                 size="sm"
-                                                src={decodedToken.FullName === "Мария Попова" ? "https://images.steamusercontent.com/ugc/2035107099039727169/7C003E5AF14BDE9E56D55C05A4D05E398FE607BC/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" : "https://bit.ly/dan-abramov"} //XDDD
-                                                
                                             />
                                             <Box overflow="hidden">
                                                 <Text fontSize="sm" fontWeight="medium" isTruncated>{decodedToken.FullName}</Text>
