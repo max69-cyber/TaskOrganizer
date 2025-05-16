@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo } from 'react';
 import { ArrowDownIcon, ArrowUpIcon, TimeIcon } from '@chakra-ui/icons';
 import {getTasks, updateTask} from './services/tasksAPI.js';
 import ErrorPage from './ErrorPage.jsx';
+import NotificationSystem from "@/NotificationSystem.jsx";
 
 const PriorityBadge = ({ priority }) => {
     const colorScheme = {
@@ -40,6 +41,8 @@ const TaskList = ({selectedTask, onSelect, tasks, setTasks}) => {
         field: 'dueDate',
         direction: 'asc'
     });
+
+    NotificationSystem(tasks);
 
     useEffect(() => {
         const fetchData = async () => {
