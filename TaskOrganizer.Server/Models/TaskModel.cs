@@ -7,7 +7,7 @@ public class TaskModel
     public string Description { get; set; }
     public DateTime DueDate { get; set; }
     public int PriorityID { get; set; }
-    public int CategoryID { get; set; }
+    public int? CategoryID { get; set; }
     public int UserID { get; set; }
     public bool Condition { get; set; }
     

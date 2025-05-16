@@ -1,52 +1,66 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import { Text } from "@chakra-ui/react";
+import { Flex, Box } from "@chakra-ui/react";
+import Sidebar from "./Sidebar.jsx";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import TaskList from "@/TaskList.jsx";
+import LoginPage from "@/LoginPage.jsx";
+import EditTask from "@/EditTask.jsx";
+import CreateTask from "@/CreateTask.jsx";
+import GroupedTaskList from "@/GroupedTaskList.jsx";
 
 function App() {
-    const [forecasts, setForecasts] = useState();
+    const [isSidebarOpen, setSidebarOpen] = useState(true);
+    const [isAuthorised, setAuthorised] = useState(!!localStorage.getItem('token'));
+    const [selectedTask, setSelectedTask] = useState(null);
+    const [tasks, setTasks] = useState([]);
 
     useEffect(() => {
-        populateWeatherData();
-    }, []);
-
-    const contents = forecasts === undefined
-        ? <Text className="text-2xl font-bold text-center mb-6">dwadawd</Text>
-        : <table className="table table-striped" aria-labelledby="tableLabel">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Temp. (C)</th>
-                    <th>Temp. (F)</th>
-                    <th>Summary</th>
-                </tr>
-            </thead>
-            <tbody>
-                {forecasts.map(forecast =>
-                    <tr key={forecast.date}>
-                        <td>{forecast.date}</td>
-                        <td>{forecast.temperatureC}</td>
-                        <td>{forecast.temperatureF}</td>
-                        <td>{forecast.summary}</td>
-                    </tr>
-                )}
-            </tbody>
-        </table>;
-
-    return (
-        <div>
-            <h1 id="tableLabel">Weather forecast</h1>
-            <p>This component demonstrates fetching data from the server.</p>
-            {contents}
-        </div>
-    );
-    
-    async function populateWeatherData() {
-        const response = await fetch('weatherforecast');
-        if (response.ok) {
-            const data = await response.json();
-            setForecasts(data);
+        const token = localStorage.getItem('token');
+        if (token) {
+            setAuthorised(true);
         }
-    }
+    }, []);
+    
+    const toggleSidebar = () => {
+        setSidebarOpen(!isSidebarOpen);
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setAuthorised(false);
+    };
+
+    const handleTaskDeleted = (deletedTaskId) => {
+        setTasks(prevTasks => prevTasks.filter(task => task.id !== deletedTaskId));
+    };
+    
+    return (
+        <Router>
+            <Flex className="h-screen">
+                {isAuthorised && (
+                    <Sidebar isOpen={isSidebarOpen} onToggle={toggleSidebar} isAuthorised={isAuthorised} onLogout={handleLogout} selectedTask={selectedTask} onDelete={handleTaskDeleted}/>
+                )}
+
+                <Box flex="1" p={4} display="flex" justifyContent="center" alignItems="center">
+                    <Routes>
+                        {!isAuthorised ? (
+                            <Route path="/login" element={<LoginPage setAuthorised={setAuthorised} />} />
+                        ) : (
+                            <>
+                                <Route path="/" element={<Navigate to="/tasks" />} />2
+                                <Route path="/tasks" element={<TaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
+                                <Route path="/edit" element={<EditTask task={selectedTask}/>} />
+                                <Route path="/create" element={<CreateTask/>} />
+                                <Route path="/grouped-tasks" element={<GroupedTaskList selectedTask={selectedTask} onSelect={setSelectedTask} tasks={tasks} setTasks={setTasks} />} />
+                            </>
+                        )}
+                        {!isAuthorised && <Route path="*" element={<Navigate to="/login" />} />}
+                    </Routes>
+                </Box>
+            </Flex>
+        </Router>
+    );
 }
 
 export default App;

@@ -43,5 +43,13 @@ public class AppDataContext : DbContext
             .HasOne(t => t.UserFK)
             .WithMany(u => u.Tasks)
             .HasForeignKey(t => t.UserID);
+        
+        modelBuilder.Entity<TaskModel>()
+            .Property(t => t.CategoryID)
+            .IsRequired(false);
+        
+        modelBuilder.Entity<TaskModel>()
+            .Property(t => t.Description)
+            .IsRequired(false);
     }
 }
