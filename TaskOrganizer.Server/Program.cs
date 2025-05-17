@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TaskOrganizer.Server.Data;
+using TaskOrganizer.Server.Hubs;
 using TaskOrganizer.Server.Services;
 using TaskOrganizer.Server.Services.Interfaces;
 
@@ -36,6 +37,9 @@ builder.Services.AddAuthentication(options =>
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JwtSettings:SecretKey"]))
         };
     });
+
+builder.Services.AddSignalR();
+builder.Services.AddHostedService<NotificationBackgroundService>();
 
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -103,6 +107,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<NotificationsHub>("/notificationsHub");
 
 app.MapFallbackToFile("/index.html");
 

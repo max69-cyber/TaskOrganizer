@@ -1,6 +1,6 @@
 namespace TaskOrganizer.Server.Models;
 
-public class ReminderModel
+public class ReminderDTO
 {
     public int ID { get; set; }
     public int TaskID { get; set; }
@@ -8,7 +8,5 @@ public class ReminderModel
     public bool Status { get; set; }
     
     public DateTime CreatedAt { get; set; }
-    
-    public TaskModel TaskFK { get; set; }
     
 }
